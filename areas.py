@@ -4,13 +4,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 import sys
 from matplotlib.gridspec import GridSpec
-#matplotlib.rcParams.update({"figure.figsize": (25.0, 13.0)})
+matplotlib.rcParams.update({"figure.figsize": (6, 8.0)})
 import numpy as np
 import os
 import matplotlib.patches as patches
-
-
-
 
 def calc_center(time_ar, stat_ar, coeff):
     front = []
@@ -38,11 +35,11 @@ def pl_point(inp, cl):
         detect_plt.add_patch(
             patches.Ellipse((int(file[10:-6]), center[i]), 0.2, diff[i], color = cl, zorder=10, fill=False, linewidth=3))
 
-
-
-
 gs2 = GridSpec(1, 1)
 detect_plt = plt.subplot(gs2[0])
+meanlevel = int(sys.argv[1][:2])
+stdlevel = int(sys.argv[1][-2:])
+
 
 for file in os.listdir("."):
     if file.endswith(".data"):
@@ -72,7 +69,6 @@ for file in os.listdir("."):
 
         plot_data = open(file, "r")
         for line in plot_data:
-
             if line == "row_data\n":
                 raw_data_flag = True
                 continue
@@ -83,7 +79,6 @@ for file in os.listdir("."):
                 string = line.split()
                 xBand_raw_time.append(float(string[0]))
                 xBand_raw_data.append(int(string[1]))
-
             if line == "pir1_detect_signal\n":
                 pir1_detect_signal_flag = True
                 continue
@@ -94,7 +89,6 @@ for file in os.listdir("."):
                 string = line.split()
                 pir1_detect_time.append(float(string[0]))
                 pir1_detect_status.append(int(string[1]))
-
             if line == "pir2_detect_signal\n":
                 pir2_detect_signal_flag = True
                 continue
@@ -105,25 +99,9 @@ for file in os.listdir("."):
                 string = line.split()
                 pir2_detect_time.append(float(string[0]))
                 pir2_detect_status.append(int(string[1]))
-            '''
-            if line == "exp_parameter\n":
-                exp_parameter_flag = True
-                continue
-            if line == "/end_of_exp_parameter\n":
-                exp_parameter_flag = False
-                continue
-            if exp_parameter_flag == True:
-                string = line.split()
-                duration = int(string[0])
-                meanlevel = int(string[1])
-                stdlevel = int(string[2])
 
-            '''
-        duration = max(xBand_raw_time)
-        meanlevel = 25
-        stdlevel = 15
-#        meanlevel = int(sys.argv[1][:2])
- #       stdlevel = int(sys.argv[1][-2:])
+
+
 
 
         for i, element in enumerate(xBand_raw_data):
@@ -161,15 +139,14 @@ for file in os.listdir("."):
         pl_point(calc_center(detect_signal[0], detect_signal[1], 0), "b")
 #        pl_point(calc_center(pir2_detect_time, pir2_detect_status, 6), "#ff9900")
 
-
-plt.suptitle('Detection area for ' , fontsize=20)
+tex = 'Detection area for radio wave sensor,\nmotion across control area $m_c$$_r = $' + str(meanlevel) + \
+      ', $st_c$$_r$ = ' + str(stdlevel)
+plt.suptitle(tex, fontsize=16)
 plt.grid(color='#c1c1c1', linestyle='-', linewidth=1)
-detect_plt.add_patch(
-    patches.Ellipse((0, 7), 0.5, 0.5, color="black", zorder=10, linewidth=3))
+detect_plt.add_patch(patches.Ellipse((0, 7), 0.5, 0.5, color="black", zorder=2, linewidth=3))
+detect_plt.add_patch(patches.Ellipse((4, 6.5), 10, 8, color="black", zorder=1, linewidth=3, hatch='\\', alpha=0.07))
 
-gs2.update(left=0.03, right=0.98, wspace=0.1, hspace=0.6, bottom=0.05, top=0.93)
-
-
+gs2.update(left=0.1, right=0.98, wspace=0.1, hspace=0.6, bottom=0.08, top=0.9)
 
 plt.xticks(np.arange(0, 12, 1.0))
 plt.yticks(np.arange(0, 15, 1.0))
